@@ -1,0 +1,848 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+% ---- theorem-like environments ----
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{remark}{Remark}[section]
+\newtheorem{example}{Example}[section]
+\newtheorem{problem}{Problem}[section]
+\newtheorem*{solution}{Solution}
+
+% ---- compact notation ----
+\newcommand{\pp}{\rho_{\mathrm{p}}}
+\newcommand{\rrho}{\rho_{0}}
+\newcommand{\cc}{c_{0}}
+\newcommand{\kk}{\kappa}
+\newcommand{\kkp}{\kappa_{\mathrm{p}}}
+\newcommand{\kkz}{\kappa_{0}}
+\newcommand{\vp}{V_{\mathrm{p}}}
+\newcommand{\avg}[1]{\left\langle #1 \right\rangle}
+\newcommand{\vpSq}{\avg{p^{2}}}
+\newcommand{\vvSq}{\avg{v^{2}}}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\ee}{\mathrm{e}}
+\newcommand{\ii}{\mathrm{i}}
+\newcommand{\uu}{\mathbf{u}}
+\newcommand{\vv}{\mathbf{v}}
+\newcommand{\nn}{\mathbf{n}}
+\newcommand{\xx}{\mathbf{x}}
+\newcommand{\rr}{\mathbf{r}}
+\newcommand{\bb}{\mathbf{b}}
+\newcommand{\bs}{\mathbf{s}}
+
+\title{\bfseries Gor'kov Potentials and Acoustic Levitation:\\ A Self-Contained Treatment\\[0.4em]
+\large From the wave equation to trapping forces, with worked problems}
+\author{Companion notes to the DeerFlow acoustic-levitator simulation}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+These notes develop, from first principles, everything needed to understand the
+\textbf{Gor'kov potential} --- the scalar function whose negative gradient gives
+the time-averaged acoustic radiation force on a small particle. We cover the
+linearised equations of acoustics, the harmonic (complex) representation of
+sound fields, the acoustic radiation-stress tensor, Rayleigh scattering by a
+small compressible sphere, the derivation and validity of the Gor'kov potential,
+trap stability and stiffness, and the extension to multi-transducer phased arrays
+(the geometry of a real acoustic levitator). A set of practice problems with full
+solutions closes each section. The treatment is aimed at readers who want to be
+able to \emph{compute}, not merely quote, the trapping behaviour of a levitator
+such as a $72$-transducer, $40\,\mathrm{kHz}$ ultrasonic array.
+\end{abstract}
+
+\tableofcontents
+
+\section{Linear acoustics in one page}
+\label{sec:linear}
+
+Acoustic levitation operates in the regime of \emph{small perturbations} about a
+quiescent reference state. We denote the equilibrium density, pressure, and speed
+of sound of the host fluid by $\rrho$, $p_{0}$, and $\cc$. The fields are written
+as
+\begin{equation}
+  \rho(\xx,t)=\rrho+\rho_{1}(\xx,t),\qquad
+  p(\xx,t)=p_{0}+p_{1}(\xx,t),\qquad
+  \vv(\xx,t)=\vv_{1}(\xx,t),
+\end{equation}
+where all subscript-$1$ quantities are first-order small.
+
+\paragraph{The three equations.} Conservation of mass, conservation of momentum
+(Euler's equation, viscosity neglected), and the isentropic equation of state
+give, to first order,
+\begin{subequations}
+\begin{align}
+  \frac{\partial\rho_{1}}{\partial t}+\rrho\,\nabla\cdot\vv_{1}&=0,
+  \label{eq:continuity}\\
+  \rrho\,\frac{\partial\vv_{1}}{\partial t}&=-\nabla p_{1},
+  \label{eq:euler}\\
+  p_{1}&=\cc^{2}\,\rho_{1},
+  \label{eq:state}
+\end{align}
+\end{subequations}
+with
+\begin{equation}
+  \cc^{2}=\left(\frac{\partial p}{\partial\rho}\right)_{\!s}
+       =\frac{1}{\rrho\,\kkz},
+  \label{eq:soundspeed}
+\end{equation}
+where $\kkz$ is the \emph{adiabatic compressibility}
+$\kkz\equiv -(1/V)(\partial V/\partial p)_{s}$. For an ideal gas,
+$\cc^{2}=\gamma p_{0}/\rrho$ with $\gamma$ the ratio of specific heats; for air
+at $20\,^{\circ}\mathrm{C}$, $\cc\approx 343\,\mathrm{m/s}$.
+
+\paragraph{The wave equation.} Taking the divergence of
+\eqref{eq:euler}, substituting \eqref{eq:continuity} and \eqref{eq:state}
+eliminates $\rho_{1}$ and $\vv_{1}$:
+\begin{equation}
+  \nabla^{2}p_{1}-\frac{1}{\cc^{2}}\frac{\partial^{2}p_{1}}{\partial t^{2}}=0.
+  \label{eq:wave}
+\end{equation}
+
+\subsection{Harmonic fields and complex notation}
+\label{sec:complex}
+
+It is extremely convenient to work with time-harmonic fields using the complex
+convention
+\begin{equation}
+  p_{1}(\xx,t)=\mathrm{Re}\!\left[ P(\xx)\,\ee^{-\ii\omega t}\right],
+  \qquad
+  \vv_{1}(\xx,t)=\mathrm{Re}\!\left[ \uu(\xx)\,\ee^{-\ii\omega t}\right],
+  \label{eq:harmonic}
+\end{equation}
+where $P$ and $\uu$ are complex amplitudes. Substituting into \eqref{eq:wave}
+gives the \textbf{Helmholtz equation}
+\begin{equation}
+  \nabla^{2}P+k^{2}P=0,\qquad k=\frac{\omega}{\cc}=\frac{2\pi}{\lambda},
+  \label{eq:helmholtz}
+\end{equation}
+and \eqref{eq:euler} relates velocity to pressure through
+\begin{equation}
+  \uu=-\frac{1}{\ii\omega\rrho}\nabla P
+      =\frac{\ii}{\omega\rrho}\nabla P.
+  \label{eq:velocity}
+\end{equation}
+Two observations about \eqref{eq:velocity} are used constantly below:
+(i) velocity is \emph{in quadrature} with the pressure gradient (the factor
+$\ii$), and (ii) where $P$ has an extremum, $\uu=0$, and vice versa.
+
+\paragraph{Time averages.} The time average of a product of two real harmonic
+quantities $A=\mathrm{Re}[a\,\ee^{-\ii\omega t}]$,
+$B=\mathrm{Re}[b\,\ee^{-\ii\omega t}]$ over one period is
+\begin{equation}
+  \avg{AB}=\frac{1}{T}\int_{0}^{T}AB\,\dd t
+          =\tfrac{1}{2}\mathrm{Re}\!\left[a\,b^{*}\right]
+          =\tfrac{1}{2}\mathrm{Re}\!\left[a^{*}b\right].
+  \label{eq:timeavg}
+\end{equation}
+In particular,
+\begin{equation}
+  \vpSq=\tfrac{1}{2}|P|^{2},\qquad
+  \vvSq=\tfrac{1}{2}|\uu|^{2}
+       =\frac{1}{2\omega^{2}\rrho^{2}}\,|\nabla P|^{2}.
+  \label{eq:pvmeansq}
+\end{equation}
+These two quadratic averages, $\vpSq$ and $\vvSq$, are the \emph{only} field
+quantities that enter the Gor'kov potential.
+
+\paragraph{Two canonical fields.} A \emph{plane travelling wave}
+$P=P_{0}\ee^{\ii kz}$ has $\vpSq=P_{0}^{2}/2$ and
+$\vvSq=P_{0}^{2}/(2\rrho^{2}\cc^{2})$, both uniform. A \emph{standing wave}
+formed by counter-propagating waves,
+$P=2P_{0}\cos(kz)$, has
+\begin{equation}
+  \vpSq=2P_{0}^{2}\cos^{2}(kz),\qquad
+  \vvSq=\frac{2P_{0}^{2}}{\rrho^{2}\cc^{2}}\sin^{2}(kz).
+  \label{eq:standing}
+\end{equation}
+The \emph{pressure nodes} (where $P=0$ and $\vpSq=0$) are at
+$kz=\pi/2+n\pi$, i.e.\ $z=\lambda/4+n\lambda/2$; the \emph{pressure antinodes}
+are at $z=n\lambda/2$. This node/antinode structure is the backbone of standing
+wave levitation.
+
+\subsection{Numerical anchors for a 40 kHz levitator}
+\begin{center}
+\begin{tabular}{lll}
+\hline
+Quantity & Symbol & Value (air, $20\,^{\circ}\mathrm{C}$)\\
+\hline
+speed of sound & $\cc$ & $343\,\mathrm{m/s}$\\
+density & $\rrho$ & $1.2\,\mathrm{kg/m^{3}}$\\
+adiabatic compressibility & $\kkz=1/(\rrho\cc^{2})$ & $\approx 7.1\times10^{-6}\,\mathrm{Pa^{-1}}$\\
+frequency & $f$ & $40\,\mathrm{kHz}$\\
+angular frequency & $\omega=2\pi f$ & $2.51\times10^{5}\,\mathrm{rad/s}$\\
+wavelength & $\lambda=\cc/f$ & $\approx 8.58\,\mathrm{mm}$\\
+wavenumber & $k=2\pi/\lambda$ & $\approx 732\,\mathrm{m^{-1}}$\\
+\hline
+\end{tabular}
+\end{center}
+(Transducer modules of the levitator's type are specified at $\lambda=8.57$
+mm, essentially the same value.) The half-wavelength spacing of standing-wave
+nodes is $\lambda/2\approx 4.29\,\mathrm{mm}$, which is why levitators are built
+with their opposing transducer arrays roughly a few half-wavelengths apart.
+
+\section{Acoustic radiation force and the radiation-stress tensor}
+\label{sec:radiation}
+
+Acoustic levitation is a \emph{second-order} effect: the force is quadratic in
+the (linear) sound field. Over one cycle a particle feels no net first-order
+force from a harmonic wave, but the nonlinear advection and equation-of-state
+terms produce a small steady \emph{radiation pressure} that does not average to
+zero.
+
+\subsection{Momentum flux and radiation stress}
+
+Momentum conservation for the fluid implies that the force exerted by a sound
+field on a body enclosed by a surface $S$ (with outward normal $\nn$) is the
+rate at which momentum flows out of $S$,
+\begin{equation}
+  \mathbf{F}=-\oint_{S} \avg{\boldsymbol{\Pi}}\cdot\nn\,\dd S,
+  \label{eq:forceintegral}
+\end{equation}
+where $\boldsymbol{\Pi}$ is the momentum-flux tensor. To second order in the
+acoustic field, the time-averaged \textbf{radiation-stress tensor} for a
+non-viscous fluid is
+\begin{equation}
+  \avg{\Pi_{ij}}=\rrho\avg{v_{i}v_{j}}
+    +\left[\frac{\vpSq}{2\rrho\cc^{2}}-\frac{\rrho}{2}\vvSq\right]\delta_{ij}.
+  \label{eq:stress}
+\end{equation}
+The first term is the momentum carried by the oscillatory flow; the bracket is a
+small isotropic ``pressure'' arising from the nonlinear equation of state and
+from the second-order advection.
+
+\begin{remark}[Eulerian vs.\ Lagrangian radiation pressure]
+\eqref{eq:stress} is the \emph{Eulerian} momentum flux (fixed in space). A
+second, uniform term $\avg{p_{2}}\delta_{ij}$ involving the second-order mean
+pressure appears when one works with \emph{Lagrangian} (material) coordinates.
+For the \emph{net force on a particle} this uniform term integrates to zero
+around any closed surface, so it does not enter the Gor'kov potential. It
+\emph{does} matter for the radiation pressure measured on a piston or wall.
+\end{remark}
+
+\begin{example}[Radiation pressure of a plane wave]
+For a plane travelling wave $P=P_{0}\ee^{\ii kz}$, $\vpSq=P_{0}^{2}/2$ and
+$\vvSq=P_{0}^{2}/(2\rrho^{2}\cc^{2})$, so the bracket in \eqref{eq:stress}
+vanishes and $\avg{\Pi_{zz}}=\rrho\avg{v_{z}^{2}}=P_{0}^{2}/(2\rrho\cc^{2})$,
+the well-known radiation pressure on a perfect absorber. On a perfect reflector
+the pressure doubles to $P_{0}^{2}/(\rrho\cc^{2})$.
+\end{example}
+
+\subsection{The Gor'kov strategy}
+
+Evaluating \eqref{eq:forceintegral} for a body of \emph{arbitrary} size requires
+solving the full scattering problem and integrating. Gor'kov's key simplification
+(1962) applies to a \emph{small} particle, $ka\ll1$. In that limit the particle
+scatters as a \textbf{monopole} plus a \textbf{dipole} only, the scattered field
+is known in closed form, and --- remarkably --- the resulting force can be written
+as the negative gradient of a scalar potential. That potential is the Gor'kov
+potential.
+
+\section{Scattering by a small compressible sphere}
+\label{sec:scattering}
+
+Consider a sphere of radius $a$, density $\pp$, and compressibility $\kkp$,
+immersed in a fluid ($\rrho,\kkz,\cc$), small enough that $ka\ll1$ so that the
+incident field is locally uniform across the particle. Two distinct physical
+mechanisms scatter sound.
+
+\subsection{Monopole scattering: compressibility contrast}
+
+A pressure fluctuation $p_{1}$ compresses the particle by a relative volume
+change $\Delta V/V=-\kkp\,p_{1}$, whereas the surrounding fluid would compress
+by $-\kkz\,p_{1}$. The \emph{difference} in compressibility acts as a source of
+volume, i.e.\ a monopole. The volume-velocity source strength is
+\begin{equation}
+  q(t)=\frac{\partial}{\partial t}\Big[(\kkp-\kkz)\,\vp\,p_{1}\Big]
+      =(\kkp-\kkz)\,\vp\,\frac{\partial p_{1}}{\partial t},
+\end{equation}
+and a monopole of strength $q$ radiates
+$p_{\mathrm{mono}}=\frac{\rrho}{4\pi r}\frac{\partial q}{\partial t}$. Using
+$\partial^{2}p_{1}/\partial t^{2}=-\omega^{2}p_{1}$ and
+$\rrho\omega^{2}\kkz=k^{2}$,
+\begin{equation}
+  p_{\mathrm{mono}}(\rr)=-\left(1-\frac{\kkp}{\kkz}\right)
+      \frac{k^{2}\vp}{4\pi r}\,p_{\mathrm{in}}
+  =-\,f_{1}\,\frac{k^{2}\vp}{4\pi r}\,p_{\mathrm{in}},
+  \label{eq:monopole}
+\end{equation}
+where we define the \textbf{monopole factor}
+\begin{equation}
+  \boxed{\;f_{1}=1-\frac{\kkp}{\kkz}
+        =1-\frac{\rrho\,\cc^{2}}{\pp\,c_{\mathrm{p}}^{2}}\;}
+  \label{eq:f1}
+\end{equation}
+and $c_{\mathrm{p}}$ is the speed of sound inside the particle. This is exactly
+the result obtained by the full Rayleigh-scattering analysis.
+
+\subsection{Dipole scattering: density contrast}
+
+A particle denser (or lighter) than the fluid does not follow the fluid's
+oscillation perfectly. In a uniform oscillating flow $\uu_{\mathrm{in}}$, a rigid
+sphere with added mass $\tfrac12\rrho\vp$ oscillates with velocity
+\begin{equation}
+  \uu_{\mathrm{p}}=\frac{3\rrho}{2\pp+\rrho}\,\uu_{\mathrm{in}},
+  \label{eq:spherevel}
+\end{equation}
+so the particle \emph{slips} relative to the fluid by
+\begin{equation}
+  \uu_{\mathrm{p}}-\uu_{\mathrm{in}}
+  =\left(\frac{3\rrho}{2\pp+\rrho}-1\right)\uu_{\mathrm{in}}
+  =-\underbrace{\frac{2(\pp-\rrho)}{2\pp+\rrho}}_{f_{2}}\,\uu_{\mathrm{in}}
+  =-f_{2}\,\uu_{\mathrm{in}}.
+  \label{eq:slip}
+\end{equation}
+A sphere translating with velocity $\uu$ through a fluid produces the potential
+flow $\phi=-\tfrac12 a^{3}\,(\uu\cdot\nabla)(1/r)$; replacing $\uu$ by the slip
+velocity \eqref{eq:slip} and using $p=-\rrho\,\partial\phi/\partial t$ gives the
+\textbf{dipole scattered pressure}
+\begin{equation}
+  p_{\mathrm{dip}}(\rr)=-\frac{\rrho\,a^{3}}{2}\,f_{2}\,
+      \frac{\partial\uu_{\mathrm{in}}}{\partial t}\cdot\nabla\!\left(\frac{1}{r}\right),
+  \label{eq:dipole}
+\end{equation}
+with the \textbf{dipole factor}
+\begin{equation}
+  \boxed{\;f_{2}=\frac{2(\pp-\rrho)}{2\pp+\rrho}\;}
+  \label{eq:f2}
+\end{equation}
+(the factor $f_{2}$ is precisely the normalized density contrast appearing in
+the classical result for an oscillating sphere).
+
+\begin{remark}[Signs and limits]
+$f_{2}\to1$ for a rigid, immobile particle ($\pp\to\infty$) and $f_{2}\to-2$
+for a massless particle ($\pp\to0$, e.g.\ a gas bubble in a liquid). The
+monopole factor $f_{1}\to1$ for an incompressible particle ($\kkp\to0$) and
+$f_{1}\to-\infty$ for a highly compressible particle such as a bubble in water.
+\end{remark}
+
+\section{Derivation of the Gor'kov potential}
+\label{sec:gor'kov}
+
+\subsection{Setup}
+
+The total field is the sum of the incident field $(p_{\mathrm{in}},\uu_{\mathrm{in}})$
+and the scattered field $(p_{s},\uu_{s})$. Substituting
+$p=p_{\mathrm{in}}+p_{s}$, $\vv=\uu_{\mathrm{in}}+\uu_{s}$ into
+\eqref{eq:stress} and integrating over a surface $S$ enclosing the particle,
+\begin{equation}
+  \mathbf{F}=-\oint_{S}\avg{\boldsymbol{\Pi}}\cdot\nn\,\dd S,
+\end{equation}
+one finds that the integrand splits into terms involving only the incident
+field, only the scattered field, and cross terms. The pure-incident terms
+integrate to zero around a closed surface (no force from a field in the absence
+of a particle); the pure-scattered terms also vanish to leading order for
+$ka\ll1$. The force therefore comes from the \emph{cross terms} between the
+incident and scattered fields. Using \eqref{eq:monopole} and \eqref{eq:dipole}
+and carrying out the surface integral (which the reader is invited to perform in
+Problem~\ref{prob:flux}; the monopole term uses
+$\oint_{S}r^{-1}\,\dd S=4\pi a$ and the dipole term uses
+$\oint_{S}r_{i}r_{j}/r^{2}\,\dd S=\frac{4\pi a^{2}}{3}\delta_{ij}$), one obtains
+\begin{equation}
+  \mathbf{F}=\vp\,\nabla\!\left[
+     f_{1}\,\frac{\vpSq}{2\rrho\cc^{2}}
+    -f_{2}\,\frac{3\rrho}{4}\vvSq
+  \right],
+  \label{eq:forcegrad}
+\end{equation}
+with $\vp=\frac{4}{3}\pi a^{3}$ the particle volume.
+
+\subsection{The potential}
+
+Because \eqref{eq:forcegrad} is a pure gradient, we may write
+$\mathbf{F}=-\nabla U$ with the \textbf{Gor'kov potential}
+\begin{equation}
+  \boxed{
+  U(\xx)=\vp\left[\,
+      f_{1}\,\frac{\vpSq}{2\rrho\cc^{2}}
+      -f_{2}\,\frac{3\rrho}{4}\,\vvSq
+  \right],
+  }
+  \label{eq:gor'kov}
+\end{equation}
+where $\vpSq=\tfrac12|P|^{2}$ and $\vvSq=\tfrac12|\uu|^{2}$ are evaluated at the
+(unperturbed) particle position. Equation \eqref{eq:gor'kov} is the central
+result of these notes. Two physical statements are packed into it:
+
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{Pressure term.} The positive term
+  $f_{1}\vpSq/(2\rrho\cc^{2})$ is the monopole contribution. For $f_{1}>0$ it
+  \emph{repels} the particle from pressure maxima; the energy is minimized where
+  $\vpSq$ is minimized (pressure nodes).
+  \item \textbf{Velocity term.} The negative term $-f_{2}(3\rrho/4)\vvSq$ is the
+  dipole contribution. For $f_{2}>0$ it \emph{attracts} the particle toward
+  velocity maxima. Since velocity maxima coincide with pressure nodes, the two
+  terms \emph{reinforce} each other for a dense, stiff particle in a gas.
+\end{enumerate}
+
+The force is
+\begin{equation}
+  \mathbf{F}=-\nabla U,
+  \label{eq:force}
+\end{equation}
+and in the absence of gravity a particle released in the field slides downhill in
+$U$ and settles at a local minimum of $U$ --- a \emph{trap}.
+
+\subsection{Physical meaning: nodes vs.\ antinodes}
+\label{sec:nodes}
+
+The sign of $f_{1}$ and $f_{2}$ decides whether a particle is trapped at a
+pressure \emph{node} or a pressure \emph{antinode}. The four cases of practical
+interest are:
+
+\begin{center}
+\begin{tabular}{lccccl}
+\hline
+Particle / host & $f_{1}$ & $f_{2}$ & trapped at & Example\\
+\hline
+solid in gas & $>0$ & $>0$ & pressure node & polystyrene in air\\
+liquid droplet in gas & $>0$ & $>0$ & pressure node & water in air\\
+solid in liquid & $\lesssim0$ & $>0$ & near node (balance) & cells in water\\
+gas bubble in liquid & $<0$ & $<0$ & pressure antinode & air in water\\
+\hline
+\end{tabular}
+\end{center}
+
+For the levitator of interest, the particles are solids or droplets in
+\emph{air}. Air is extraordinarily compressible and light compared to any solid
+or liquid: $\kkp\ll\kkz$ and $\pp\gg\rrho$. Hence
+\begin{equation}
+  f_{1}\approx1,\qquad f_{2}\approx1,
+  \qquad\text{(solid/droplet in air)}
+  \label{eq:airlimits}
+\end{equation}
+and the potential simplifies to
+\begin{equation}
+  U\approx \vp\left[
+     \frac{\vpSq}{2\rrho\cc^{2}}
+    -\frac{3\rrho}{4}\vvSq
+  \right].
+  \label{eq:gor'kov_air}
+\end{equation}
+With $f_{1}=f_{2}=1$ the particle is trapped at a pressure node, where both
+$\vpSq$ and the repulsive term vanish and the attractive velocity term is
+maximized. This is why ultrasonic levitators hold particles at the nodes of the
+standing wave.
+
+\subsection{Validity conditions}
+
+The Gor'kov potential is reliable when all of the following hold:
+\begin{enumerate}[label=(\alph*)]
+  \item \textbf{Rayleigh limit} $ka\ll1$ (particle much smaller than the
+  wavelength). For $40\,\mathrm{kHz}$ in air, $ka\lesssim0.46$ for
+  $a\lesssim1\,\mathrm{mm}$, i.e.\ spheres up to $\sim2\,\mathrm{mm}$ diameter
+  are reasonably handled; larger particles need the full Mie-type series.
+  \item \textbf{Weak scattering}: the field at the particle position is the
+  incident field (single scattering, no re-scattering between particles).
+  \item \textbf{Non-viscous host} and negligible acoustic streaming relative to
+  the radiation force. (Streaming is a separate, typically weaker steady flow.)
+  \item \textbf{Particle treated as a small sphere}; non-spherical particles
+  need a multipole generalization (the same idea with more terms).
+\end{enumerate}
+
+\begin{example}[Trap depth for a rigid sphere in a standing wave]
+Using \eqref{eq:standing} in \eqref{eq:gor'kov_air} gives
+$U(z)=\vp P_{0}^{2}/(\rrho\cc^{2})\left[\cos^{2}(kz)-\tfrac34\sin^{2}(kz)\right]$
+(see Problem~\ref{prob:standing}). At a node ($kz=\pi/2$) the value is
+$U=-\frac34\,\vp P_{0}^{2}/(\rrho\cc^{2})$, while at an antinode ($kz=0$) it is
+$U=+\vp P_{0}^{2}/(\rrho\cc^{2})$. The trap depth (energy difference between
+antinode and node) is therefore
+$\Delta U=\frac74\,\vp P_{0}^{2}/(\rrho\cc^{2})$.
+\end{example}
+
+\section{From one transducer to 72: phased arrays and holography}
+\label{sec:arrays}
+
+A single transducer produces a beam; two opposing transducers produce a standing
+wave with a single nodal plane. A \emph{phased array} --- many transducers whose
+individual phases (and, optionally, amplitudes) are controlled independently ---
+can synthesize a nearly arbitrary acoustic field in a volume, and therefore a
+nearly arbitrary arrangement of traps. This is the principle behind the
+72-transducer levitator studied here.
+
+\subsection{Superposition of piston fields}
+
+Label the transducers $n=1,\dots,N$ (here $N=72$), each located at $\xx_{n}$
+with axis direction $\hat{\bb}_{n}$, radius $R$, phase $\varphi_{n}$, and
+amplitude weight $w_{n}$. The total complex pressure is the coherent sum
+\begin{equation}
+  P(\xx)=\sum_{n=1}^{N} w_{n}\,D_{n}(\xx)\,P_{0}\,e^{\ii(k d_{n}+\varphi_{n})},
+  \label{eq:superposition}
+\end{equation}
+where $d_{n}=|\xx-\xx_{n}|$ and $D_{n}$ is the single-transducer directivity
+pattern (Section~\ref{sec:piston}). The particle velocity follows from
+\eqref{eq:euler},
+\begin{equation}
+  \uu(\xx)=\frac{\ii}{\rrho\omega}\nabla P(\xx),
+\end{equation}
+and both are substituted into the Gor'kov potential \eqref{eq:gor'kov}.
+
+\subsection{Baffled-piston directivity}
+\label{sec:piston}
+
+Each 40\,kHz transducer is a disc of radius $R\approx5\,\mathrm{mm}$ mounted in a
+baffle. A rigid circular piston of radius $R$ vibrating with normal velocity
+$v_{0}$ in an infinite rigid baffle radiates the \emph{Rayleigh--Sommerfeld}
+field
+\begin{equation}
+  P_{\mathrm{piston}}(r,\theta)=
+  \frac{\rrho c\,v_{0}\,k}{2\pi}\int_{0}^{R}\!\int_{0}^{2\pi}
+  \frac{e^{\ii k|\rr-\rr'|}}{|\rr-\rr'|}\,r'\,\dd r'\,\dd\phi',
+  \label{eq:rayleigh}
+\end{equation}
+which in the far field ($r\gg R$, $r\gg kR^{2}$) reduces to
+\begin{equation}
+  P(r,\theta)=\ii\,\rrho c\,v_{0}\,\frac{R^{2}}{r}\,
+    e^{\ii kr}\;
+    \underbrace{\frac{J_{1}(kR\sin\theta)}{kR\sin\theta}}_{D(\theta)},
+  \label{eq:pistonfar}
+\end{equation}
+where $J_{1}$ is the Bessel function of the first kind and $D(\theta)$ is the
+\textbf{directivity}. The directivity has a main lobe on axis ($\theta=0$,
+$D=1$) and nulls at $kR\sin\theta=\gamma_{1m}$ (zeros of $J_{1}$); the first
+null is at $\sin\theta=\gamma_{11}/(kR)\approx3.83/(kR)$. Because $kR\approx1.2$
+at 40\,kHz, the pattern is broad (near-hemispherical), which is important: each
+transducer contributes over a wide solid angle and many transducers cooperate to
+form a single trap.
+
+In the near field the exact \eqref{eq:rayleigh} is used; the simulation
+evaluates it directly so that traps a fraction of a wavelength from the array
+are represented correctly. For axisymmetric computation the double integral can
+be collapsed to a one-dimensional quadrature, which is what the code does.
+
+\subsection{Phase-only holography for trap shaping}
+
+Given a desired pressure target $P_{\mathrm{target}}(\xx)$ (e.g.\ bright spots
+at chosen trap positions), one may solve for the phases $\varphi_{n}$ that best
+reproduce it. Because amplitude control adds cost and complexity, the practical
+scheme is \textbf{phase-only} control ($w_{n}=1$), which relies on the fact that
+the \emph{phase} of each transducer carries most of the information needed to
+form traps. A standard choice is the \emph{backpropagation} (time-reversal)
+prescription: to focus energy at $\xx_{t}$, set
+\begin{equation}
+  \varphi_{n}=-k\,|\xx_{t}-\xx_{n}|=-k d_{n,t},
+  \label{eq:backprop}
+\end{equation}
+so that all contributions arrive \emph{in phase} at $\xx_{t}$ and interfere
+constructively. This is the exact analogue of time-reversal focusing and of a
+phased-array ``delay-and-sum'' beamformer. It reproduces the acoustic
+\emph{hologram} used in modern levitators.
+
+\begin{remark}[Hologram vs.\ potential]
+Focusing produces a pressure \emph{maximum}. For particles with $f_{1}>0$ the
+trap is a pressure \emph{node}, so the target $U$-minimum is not a pressure
+maximum but a \emph{null flanked by lobes}. In practice one either (i) focuses a
+\emph{ring} of lobes whose center is a node, or (ii) targets a local minimum of
+the full $U$ directly by optimizing $\varphi_{n}$ against $U$ rather than
+against $|P|$. The latter is what the levitator code does for trap placement.
+\end{remark}
+
+\subsection{Standing waves, focusing, steering, and vortices}
+
+By choosing the phases, one synthesizes the canonical trap families:
+
+\begin{description}
+  \item[Standing wave.] $\varphi_{n}$ constant, equal phase on both shells of the
+  opposed array $\Rightarrow$ axial standing wave with nodal planes spaced
+  $\lambda/2$ apart (Section~\ref{sec:standing}).
+  \item[Focus / single trap.] Backpropagation \eqref{eq:backprop} to one point
+  concentrates the field and creates a tightly localized potential well.
+  \item[Steering / translation.] Adding a linear phase ramp
+  $\varphi_{n}=\varphi_{n}^{0}-k\,\hat{\bs}\cdot\xx_{n}$ translates the trap
+  along $\hat{\bs}$ (a phased-array beamsteer).
+  \item[Vortex trap (topological charge $m$).] The phase
+  $\varphi_{n}=m\,\arg(\xx_{t}-\xx_{n})_{\perp}$ (azimuthal phase winding by
+  $2\pi m$ around the axis) creates an acoustic vortex --- a field with a
+  \emph{phase singularity} on the axis. The central node is an ideal trap for a
+  particle or droplet, and the field carries orbital angular momentum.
+  \item[Twin / multiple traps.] Summing backpropagation phases for several target
+  points (or partitioning the array into sub-arrays) produces several traps
+  simultaneously; this is used for multi-particle and contactless assembly.
+\end{description}
+
+\subsection{Orbital angular momentum and rotation}
+
+A vortex field $P(r,\phi,z)\propto A(r,z)\,e^{\ii m\phi}$ carries a phase
+singularity at $r=0$ where $A\to0$, hence a deep pressure node. The azimuthal
+phase gradient $\frac1r\frac{\partial}{\partial\phi}(m\phi)=m/r$ corresponds to
+an azimuthal velocity, and the field transports \textbf{orbital angular momentum}
+(OAM) along the axis. A particle trapped on (or slightly off) the vortex core
+experiences an azimuthal radiation \emph{torque} and rotates (Problem
+\ref{prob:torque}). Varying $m$ and the phase offsets lets one spin, translate,
+and manipulate particles, droplets, and even small objects with no contact.
+
+\begin{example}[72-transducer geometry]
+The TinyLev-style array in the STL file has two opposed spherical caps, each with
+36 transducers arranged in concentric rings of 6, 12, and 18 elements, on a
+sphere of radius $R_{c}=90\,\mathrm{mm}$ aimed at the center. The operating
+frequency $f=40\,\mathrm{kHz}$ gives $\lambda=c/f\approx8.65\,\mathrm{mm}$ in
+air, so a levitated droplet of $\sim2\,\mathrm{mm}$ diameter satisfies
+$ka\approx0.46\lesssim1$ and the Gor'kov picture is valid. The opposed geometry
+forms a standing wave in the center; adding holographic phases turns that
+standing wave into steerable single or multiple traps.
+\end{example}
+
+\section{Practice problems}
+\label{sec:problems}
+
+Problems progress from basic evaluation to full derivations. Full solutions to
+the guided problems follow at the end of the section.
+
+\begin{problem}[Monopole and dipole factors]\label{prob:f1f2}
+Compute $f_1$ and $f_2$ for (a) a polystyrene sphere
+($\pp=1050\,\mathrm{kg/m^3}$, $c_{\mathrm{p}}=2350\,\mathrm{m/s}$) in air
+($\rrho=1.2\,\mathrm{kg/m^3}$, $c=343\,\mathrm{m/s}$); (b) an air bubble in
+water ($\pp=1.2$, $c_{\mathrm{p}}=343$, $\rrho=1000$, $c=1480$). In each case
+state whether the particle is trapped at a pressure node or antinode.
+\end{problem}
+
+\begin{problem}[Standing-wave potential]\label{prob:standing}
+A plane standing wave has $P(z)=P_0\cos(kz)$ with $P_0$ real. Using
+$\uu=\frac{\ii}{\rrho\omega}\nabla P$, show that
+$\vpSq=\tfrac12 P_0^2\cos^2(kz)$ and
+$\vvSq=\frac{P_0^2}{2\rrho^2 c^2}\sin^2(kz)$. Hence derive
+\begin{equation}
+  U(z)=\frac{\vp P_0^2}{\rrho c^2}\left[f_1\cos^2(kz)-\frac34 f_2\sin^2(kz)\right].
+  \label{eq:Ustanding}
+\end{equation}
+For $f_1=f_2=1$, locate the potential minima and confirm they are at
+$kz=\frac\pi2,\frac{3\pi}2,\dots$ (pressure nodes), spaced $\lambda/2$ apart.
+\end{problem}
+
+\begin{problem}[Trap depth]\label{prob:depth}
+For $f_1=f_2=1$, compute the trap depth $\Delta U$ between a node and an
+adjacent antinode in \eqref{eq:Ustanding}. Evaluate it in joules for a water
+droplet of radius $a=0.5\,\mathrm{mm}$ in air at
+$P_0=1.5\,\mathrm{kPa}$. Compare with the gravitational energy
+$m g\,\lambda/2$ of the droplet. What does the comparison imply about the
+minimum acoustic pressure needed to levitate it?
+\end{problem}
+
+\begin{problem}[Pressure vs.\ velocity contrast]\label{prob:contrast}
+A particle has $f_1$ and $f_2$ both positive. Explain, from
+\eqref{eq:gor'kov}, why the pressure term \emph{repels} the particle from
+pressure antinodes while the velocity term \emph{attracts} it to velocity
+antinodes, and why these two statements are consistent (recall the phase
+relation between $p$ and $v$ in a standing wave).
+\end{problem}
+
+\begin{problem}[Deriving the force from momentum flux]\label{prob:flux}
+This is the derivation skipped in Section~\ref{sec:gor'kov}. Consider a rigid
+sphere of radius $a$ in a fluid with an incident plane wave.
+\begin{enumerate}[label=(\alph*)]
+  \item Write the total pressure as $p=p_{\mathrm{in}}+p_s$ and velocity
+  $\vv=\uu_{\mathrm{in}}+\uu_s$. Expand the time-averaged stress
+  \eqref{eq:stress} to first order in the scattered field and identify the
+  cross terms.
+  \item Show that the pure-incident terms integrate to zero over a sphere
+  enclosing the particle, so the force is
+  $\mathbf{F}=-\oint_S \avg{\boldsymbol{\Pi}}_{\mathrm{cross}}\cdot\nn\,\dd S$.
+  \item Using the monopole field \eqref{eq:monopole}, show the monopole
+  contribution is $\mathbf{F}_{\mathrm{mono}}=\vp f_1\,\nabla\left(\vpSq/(2\rrho c^2)\right)$,
+  using $\oint_S r^{-1}\,\dd S=4\pi a$ and $\nabla\vpSq$ evaluated at the
+  center.
+  \item Using the dipole field \eqref{eq:dipole}, show the dipole contribution
+  is $\mathbf{F}_{\mathrm{dip}}=-\vp f_2\,\frac{3\rrho}{4}\nabla\vvSq$,
+  using $\oint_S r_i r_j/r^2\,\dd S=\frac{4\pi a^2}{3}\delta_{ij}$.
+  \item Combine (c) and (d) to recover \eqref{eq:forcegrad} and the Gor'kov
+  potential \eqref{eq:gor'kov}.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Rayleigh limit of the monopole]\label{prob:rayleigh}
+A compressible sphere of radius $a$ sits in a plane wave
+$p_{\mathrm{in}}=P_0 e^{\ii kz}$. In the long-wavelength limit $ka\ll1$, the
+exact Mie-type series for a compressible sphere reduces to
+\begin{equation}
+  p_s(\rr)=-\frac{k^2\vp}{4\pi r}\,f_1\,P_0
+  -\frac{\rrho a^3}{2}\,f_2\,\frac{\partial u_{\mathrm{in}}}{\partial t}\cdot\nabla\!\left(\frac1r\right).
+\end{equation}
+Identify the monopole and dipole terms and confirm they match
+\eqref{eq:monopole} and \eqref{eq:dipole}. Explain why higher multipoles
+(quadrupole, etc.) are suppressed by powers of $(ka)^2$.
+\end{problem}
+
+\begin{problem}[Trapping criterion and stability]\label{prob:stability}
+For a particle with $f_1,f_2>0$ in the standing wave
+\eqref{eq:Ustanding}, compute the force $F(z)=-\dd U/\dd z$ and the trap
+stiffness $k_t=\dd^2 U/\dd z^2$ at a node. Show that
+$k_t>0$ (stable) requires $f_1+\frac34 f_2>0$. Interpret this condition
+physically and check it for polystyrene in air.
+\end{problem}
+
+\begin{problem}[Radiation torque and OAM]\label{prob:torque}
+A vortex trap has $P(r,\phi,z)=A(r,z)\,e^{\ii m\phi}$ with $A\to0$ as $r\to0$.
+\begin{enumerate}[label=(\alph*)]
+  \item Show the azimuthal phase gradient is $m/r$ and hence the field carries
+  angular momentum density proportional to $m\,|A|^2$ (time-averaged).
+  \item The azimuthal component of the radiation force on an off-axis particle
+  produces a torque $\boldsymbol{\tau}=\mathbf{r}\times\mathbf{F}$. Argue that
+  a particle slightly displaced from the core experiences a torque proportional
+  to $m$, and hence rotates.
+  \item For the phase assignment $\varphi_n=m\,\arg(\xx_t-\xx_n)_\perp$ on the
+  72-transducer array, explain how the superposition \eqref{eq:superposition}
+  produces a field approximating $e^{\ii m\phi}$ near the axis.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Phase-only holography]\label{prob:holography}
+You want a single trap at $\xx_t$ using backpropagation
+$\varphi_n=-k|\xx_t-\xx_n|$ \eqref{eq:backprop}.
+\begin{enumerate}[label=(\alph*)]
+  \item Show that all 72 contributions arrive in phase at $\xx_t$, so
+  $|P(\xx_t)|$ is maximized.
+  \item Explain why, for $f_1>0$, the \emph{trap} is nevertheless a pressure
+  \emph{node}, and why the simple backpropagation focus is not by itself a
+  Gor'kov minimum.
+  \item Propose a target $U(\xx)$ (rather than $|P|$) and describe an iterative
+  scheme $\varphi_n\leftarrow\arg\min_\varphi U(\xx_t)$ (e.g.\ a few steps of a
+  projected gradient on the phases) that converges to a true potential well.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Scaling with frequency]\label{prob:scaling}
+The Gor'kov potential scales as $U\propto P_0^2/(\rrho c^2)$ at fixed field
+amplitude, but a transducer of fixed power produces a pressure that scales with
+$k$ (via the piston far field \eqref{eq:pistonfar}). Argue that, for fixed
+acoustic \emph{power}, $U$ scales with $\omega^2$, so higher frequency traps
+more strongly --- but at the cost of a shorter wavelength $\lambda$ and hence a
+smaller maximum levitatable particle. Discuss the trade-off for
+$40\,\mathrm{kHz}$ vs.\ $100\,\mathrm{kHz}$ levitators.
+\end{problem}
+
+\begin{problem}[Design: levitating a water drop]\label{prob:design}
+A 72-transducer, $40\,\mathrm{kHz}$ levitator holds a $0.5\,\mathrm{mm}$-radius
+water droplet ($\rho_p=1000\,\mathrm{kg/m^3}$) in air.
+\begin{enumerate}[label=(\alph*)]
+  \item Verify $ka<1$ and justify the Gor'kov approximation.
+  \item Compute $f_1$, $f_2$ to confirm $f_1\approx f_2\approx1$.
+  \item Given $P_0=1.5\,\mathrm{kPa}$, compute the trap depth and the trap
+  stiffness, and estimate the restoring force for a $50\,\mu\mathrm{m}$
+  displacement from the node.
+  \item The droplet weight is $m g$. What minimum pressure amplitude is needed
+  for the trap to support the droplet? Does it exceed the value in (c)?
+\end{enumerate}
+\end{problem}
+
+\subsection*{Solutions and guided steps}
+
+\textbf{\ref{prob:f1f2}.} (a)
+$f_1=1-\frac{\rrho c^2}{\pp c_p^2}=1-\frac{1.2\cdot343^2}{1050\cdot2350^2}\approx0.99998$,
+$f_2=\frac{2(\pp-\rrho)}{2\pp+\rrho}\approx1.0$. Both positive $\Rightarrow$
+trapped at a pressure \emph{node}. (b) For a bubble:
+$f_1=1-\frac{1000\cdot1480^2}{1.2\cdot343^2}\approx-1.6\times10^4$,
+$f_2=\frac{2(1.2-1000)}{2\cdot1.2+1000}\approx-1.99$. Both negative
+$\Rightarrow$ trapped at a pressure \emph{antinode} (classic result: bubbles
+migrate to pressure maxima).
+
+\textbf{\ref{prob:standing}.} With $P=P_0\cos kz$ real,
+$u=\frac{\ii}{\rrho\omega}\frac{\dd P}{\dd z}=\frac{-\ii P_0 k}{\rrho\omega}\sin kz
+=-\ii\frac{P_0}{\rrho c}\sin kz$. Then
+$\vpSq=\tfrac12|P|^2=\tfrac12P_0^2\cos^2 kz$ and
+$\vvSq=\tfrac12|u|^2=\frac{P_0^2}{2\rrho^2c^2}\sin^2 kz$. Substitution into
+\eqref{eq:gor'kov} gives \eqref{eq:Ustanding}. For $f_1=f_2=1$,
+$U(z)=\frac{\vp P_0^2}{\rrho c^2}\left[\cos^2 kz-\frac34\sin^2 kz\right]$.
+Differentiating:
+$\frac{\dd U}{\dd z}=-\frac{\vp P_0^2 k}{\rrho c^2}\cdot\frac72\sin kz\cos kz$,
+zero where $\sin kz=0$ (antinodes, $U>0$) or $\cos kz=0$ (nodes, $U<0$). The
+minima are at $\cos kz=0$, i.e.\ $kz=\pi/2,3\pi/2,\dots$.
+
+\textbf{\ref{prob:depth}.} At a node $U_-=-\frac34\frac{\vp P_0^2}{\rrho c^2}$;
+at an antinode $U_+=+\frac{\vp P_0^2}{\rrho c^2}$; so
+$\Delta U=\frac74\frac{\vp P_0^2}{\rrho c^2}$. With
+$\vp=\frac43\pi(0.5\,\mathrm{mm})^3=5.24\times10^{-10}\,\mathrm{m^3}$,
+$\rrho c^2=1.2\cdot343^2\approx1.41\times10^5\,\mathrm{Pa}$,
+$P_0^2=2.25\times10^6\,\mathrm{Pa^2}$:
+$\Delta U=\frac74\frac{5.24\times10^{-10}\cdot2.25\times10^6}{1.41\times10^5}\approx5.9\times10^{-8}\,\mathrm{J}$.
+Gravity over $\lambda/2=4.3\,\mathrm{mm}$:
+$mg\,\lambda/2=\rho_p\vp g\,\lambda/2=1000\cdot5.24\times10^{-10}\cdot9.8\cdot4.3\times10^{-3}\approx2.2\times10^{-8}\,\mathrm{J}$.
+Since $\Delta U>mg\lambda/2$, the trap can support the droplet at this pressure;
+levitation requires $P_0\gtrsim\sqrt{\frac47\rrho c^2\rho_p g\lambda/2}\approx0.9\,\mathrm{kPa}$.
+
+\textbf{\ref{prob:contrast}.} In a standing wave, $\vpSq$ is maximum at pressure
+antinodes (where the velocity vanishes) and $\vvSq$ is maximum at pressure nodes
+(where the pressure vanishes). The pressure term $+f_1\vpSq/(2\rrho c^2)$ adds
+positive energy at antinodes, pushing the particle away; the velocity term
+$-f_2\frac{3\rrho}{4}\vvSq$ lowers energy at nodes, pulling it in. The two
+statements are consistent because antinodes and nodes are $\lambda/4$ apart, so
+the two terms push toward the same point.
+
+\textbf{\ref{prob:flux}.} This is the standard momentum-flux derivation; the
+key steps are outlined in the problem statement, and the surface-integral
+identities give the coefficients $\vp$ (monopole) and $-\frac{3\rrho}{4}\vp$
+(dipole) in \eqref{eq:forcegrad}.
+
+\textbf{\ref{prob:rayleigh}.} The first term is the monopole (spherical,
+$\propto1/r$, compressibility); the second is the dipole
+($\propto\cos\theta/r^2$, density). Higher multipoles enter with
+$(ka)^{2\ell}$ prefactors, so for $ka\ll1$ only $\ell=0,1$ survive.
+
+\textbf{\ref{prob:stability}.} With
+$U(z)=\frac{\vp P_0^2}{\rrho c^2}\left[f_1\cos^2 kz-\frac34 f_2\sin^2 kz\right]$,
+$F(z)=-\frac{\dd U}{\dd z}=\frac{\vp P_0^2 k}{\rrho c^2}\left(f_1+\frac34f_2\right)\sin kz\cos kz$
+and at a node ($kz=\pi/2$):
+$k_t=\frac{\dd^2U}{\dd z^2}\big|_{node}=\frac{2\vp P_0^2k^2}{\rrho c^2}\left(f_1+\frac34f_2\right)$.
+Stability ($k_t>0$) requires $f_1+\frac34f_2>0$. For polystyrene in air both
+$f_1,f_2\approx1$, so $k_t>0$: the node is a genuine energy minimum.
+
+\textbf{\ref{prob:torque}.} (a) The phase $m\phi$ has gradient
+$\nabla(m\phi)=\frac{m}{r}\hat{\boldsymbol\phi}$, an azimuthal momentum flux.
+The time-averaged angular momentum density $\propto r\times\langle\rho\vv\rangle$
+has $z$-component proportional to $m|A|^2$. (b) Off-axis, the azimuthal force
+$F_\phi=-\frac1r\frac{\partial U}{\partial\phi}\propto m$, giving
+$\tau_z=rF_\phi\propto m$: the particle spins about the singularity.
+(c) Summing \eqref{eq:superposition} with
+$\varphi_n=m\arg(\xx_t-\xx_n)_\perp$ gives each transducer a phase that winds by
+$m$ around the axis, so their coherent sum near the axis is locally
+$\propto e^{\ii m\phi}$.
+
+\textbf{\ref{prob:holography}.} (a) At $\xx_t$ each term in
+\eqref{eq:superposition} has phase $k|\xx_t-\xx_n|+\varphi_n=0$, so all add
+coherently. (b) $U$ has the repulsive pressure term $+f_1\vpSq/(2\rrho c^2)$;
+the $|P|$ maximum is a $U$ \emph{maximum} for $f_1>0$. A trap is a $U$
+minimum, i.e.\ a pressure node flanked by lobes. (c) Define a loss
+$\mathcal L(\varphi)=U(\xx_t;\varphi)$ and iterate
+$\varphi_n\leftarrow\varphi_n-\eta\,\partial U(\xx_t)/\partial\varphi_n$ (a
+projected gradient on the unit circle) until $U(\xx_t)$ is minimized; the
+resulting hologram places a true potential well at $\xx_t$.
+
+\textbf{\ref{prob:scaling}.} For fixed acoustic power
+$P_0\propto k$ (far-field amplitude grows with $k$ at fixed surface velocity),
+so $U\propto P_0^2\propto k^2\propto\omega^2$ at fixed power. But
+$\lambda\propto1/\omega$ shrinks, so the Rayleigh limit $ka<1$ caps the particle
+size: higher frequency traps harder but only smaller objects.
+
+\textbf{\ref{prob:design}.} (a)
+$k=2\pi f/c=2\pi\cdot40\times10^3/343\approx733\,\mathrm{m^{-1}}$,
+$ka=733\cdot0.5\times10^{-3}\approx0.37<1$. (b)
+$f_1\approx1-\frac{1.2\cdot343^2}{1000\cdot1480^2}\approx1.0$,
+$f_2\approx1.0$. (c) From Problem \ref{prob:depth},
+$\Delta U\approx5.9\times10^{-8}\,\mathrm{J}$; the stiffness
+$k_t\approx\frac{2\vp P_0^2k^2}{\rrho c^2}\cdot\frac74\approx0.37\,\mathrm{N/m}$,
+and for a $50\,\mu\mathrm{m}$ displacement the restoring force is
+$k_t\cdot50\,\mu\mathrm{m}\approx1.9\times10^{-5}\,\mathrm{N}$. (d) The weight
+is $mg\approx5.1\times10^{-6}\,\mathrm{N}$, well below the maximum restoring
+force available; levitation is comfortably achieved at $P_0=1.5\,\mathrm{kPa}$.
+
+\section*{References}
+
+The primary source for the potential is L.\,P.~Gor'kov, ``On the forces acting
+on a small particle in an acoustical field in an ideal fluid,'' \emph{Sov.\
+Phys.\ Dokl.} \textbf{6}, 773 (1962). Standard treatments of the radiation
+stress and Rayleigh scattering appear in L.\,D.~Landau and E.\,M.~Lifshitz,
+\emph{Fluid Mechanics} (Pergamon); the momentum-flux derivation follows
+H.\,Bruus, \emph{Theoretical Microfluidics} (Oxford). The baffled-piston
+directivity is the Rayleigh--Sommerfeld result; holographic and vortex trap
+techniques are described in A.\,Marzo, S.\,A.~Seah, B.\,W.~Drinkwater et al.,
+``Holographic acoustic elements for manipulation of levitated objects,''
+\emph{Nat.\ Commun.} \textbf{6}, 8661 (2015).
+
+\end{document}

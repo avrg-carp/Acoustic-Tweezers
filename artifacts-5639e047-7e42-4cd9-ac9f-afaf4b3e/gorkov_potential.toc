@@ -1,0 +1,25 @@
+\contentsline {section}{\numberline {1}Linear acoustics in one page}{2}{section.1}%
+\contentsline {paragraph}{The three equations.}{2}{section*.2}%
+\contentsline {paragraph}{The wave equation.}{2}{section*.3}%
+\contentsline {subsection}{\numberline {1.1}Harmonic fields and complex notation}{2}{subsection.1.1}%
+\contentsline {paragraph}{Time averages.}{3}{section*.4}%
+\contentsline {paragraph}{Two canonical fields.}{3}{section*.5}%
+\contentsline {subsection}{\numberline {1.2}Numerical anchors for a 40 kHz levitator}{3}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Acoustic radiation force and the radiation-stress tensor}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Momentum flux and radiation stress}{3}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}The Gor'kov strategy}{4}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Scattering by a small compressible sphere}{4}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Monopole scattering: compressibility contrast}{4}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Dipole scattering: density contrast}{5}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Derivation of the Gor'kov potential}{5}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Setup}{5}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}The potential}{6}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Physical meaning: nodes vs.\ antinodes}{6}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Validity conditions}{7}{subsection.4.4}%
+\contentsline {section}{\numberline {5}From one transducer to 72: phased arrays and holography}{7}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Superposition of piston fields}{7}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Baffled-piston directivity}{8}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Phase-only holography for trap shaping}{8}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Standing waves, focusing, steering, and vortices}{8}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}Orbital angular momentum and rotation}{9}{subsection.5.5}%
+\contentsline {section}{\numberline {6}Practice problems}{9}{section.6}%
